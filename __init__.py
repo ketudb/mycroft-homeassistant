@@ -255,10 +255,10 @@ class HomeAssistantSkill(FallbackSkill):
 
         ha_data['brightness'] = brightness_value
 
-        dg_data = {'brightness_percentage' = brightness_percentage}
+        dg_data = {'brightness_percentage': brightness_percentage}
         dg_data['dev_name'] = ha_entity['dev_name']
 
-        self.ha.execute_service("light", "turn_on", {"entity_id": ha_data['entity_id'], "brightness": ha_data['brightness']})
+        self.ha.execute_service("light", "turn_on", ha_data)
         self.speak_dialog('homeassistant.brightness.dimmed',
                           data=dg_data)
 
