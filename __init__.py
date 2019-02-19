@@ -108,13 +108,13 @@ class HomeAssistantSkill(FallbackSkill):
             "SwitchActionKeyword").require("Action").require("Entity").build()
         self.register_intent(intent, self.handle_switch_intent)
 
-    def __build_light_adjust_intent(self):
-        intent = IntentBuilder("LightAdjBrightnessIntent") \
-            .optionally("LightsKeyword") \
-            .one_of("IncreaseVerb", "DecreaseVerb", "LightBrightenVerb",
-                    "LightDimVerb") \
-            .require("Entity").optionally("BrightnessValue").build()
-        self.register_intent(intent, self.handle_light_adjust_intent)
+    #def __build_light_adjust_intent(self):
+    #    intent = IntentBuilder("LightAdjBrightnessIntent") \
+    #        .optionally("LightsKeyword") \
+    #        .one_of("IncreaseVerb", "DecreaseVerb", "LightBrightenVerb",
+    #                "LightDimVerb") \
+    #        .require("Entity").optionally("BrightnessValue").build()
+    #    self.register_intent(intent, self.handle_light_adjust_intent)
 
     def __build_automation_intent(self):
         intent = IntentBuilder("AutomationIntent").require(
@@ -254,6 +254,7 @@ class HomeAssistantSkill(FallbackSkill):
         # self.set_context('Entity', ha_entity['dev_name'])
 
         ha_data['brightness'] = brightness_value
+        ha_data['brightness_percentage'] = brightness_percentage
         ha_data['dev_name'] = ha_entity['dev_name']
         self.ha.execute_service("homeassistant", "turn_on", ha_data)
         self.speak_dialog('homeassistant.brightness.dimmed',
