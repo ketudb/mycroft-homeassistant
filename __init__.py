@@ -230,7 +230,7 @@ class HomeAssistantSkill(FallbackSkill):
             self.speak_dialog('homeassistant.error.sorry')
             return
 
-    @intent_file_handler('set.light.brightness.intent')
+    # @intent_file_handler('set.light.brightness.intent')
     def handle_light_set_intent(self, message):
         entity = message.data["entity"]
         try:
