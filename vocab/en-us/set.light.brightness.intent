@@ -1,1 +1,5 @@
 set brightness of {{entity}} to {{brightnessvalue}} percent
+dim {{entity}} to {{brightnessvalue}} percent
+set {{entity}} to {{brightnessvalue}} percent
+brighten {{entity}} to {{brightnessvalue}} percent
+{{entity}} to {{brightnessvalue}} percent
