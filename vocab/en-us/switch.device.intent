@@ -1,0 +1,9 @@
+turn on {{entity}}
+turn off {{entity}}
+{{entity}} on
+{{entity}} off
+switch on {{entity}}
+switch off {{entity}}
+set {{entity}} to on
+set {{entity}} to off
+toggle {{entity}}
