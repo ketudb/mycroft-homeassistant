@@ -83,6 +83,12 @@ class HomeAssistantSkill(FallbackSkill):
         self.__build_automation_intent()
         self.__build_sensor_intent()
         self.__build_tracker_intent()
+
+        self.register_entity_file('light_action.entity')
+        self.register_intent_file(
+            'switch.device.intent',
+            self.handle_switch_intent
+        )
         self.register_intent_file(
             'set.climate.intent',
             self.handle_set_thermostat_intent
@@ -169,8 +175,8 @@ class HomeAssistantSkill(FallbackSkill):
 
     def handle_switch_intent(self, message):
         LOGGER.debug("Starting Switch Intent")
-        entity = message.data["Entity"]
-        action = message.data["Action"]
+        entity = message.data["entity"]
+        action = message.data["light_ction"]
         LOGGER.debug("Entity: %s" % entity)
         LOGGER.debug("Action: %s" % action)
 
@@ -194,16 +200,7 @@ class HomeAssistantSkill(FallbackSkill):
         # IDEA: set context for 'turn it off' again or similar
         # self.set_context('Entity', ha_entity['dev_name'])
 
-        if self.language == 'de':
-            if action == 'ein':
-                action = 'on'
-            elif action == 'aus':
-                action = 'off'
-        if ha_entity['state'] == action:
-            LOGGER.debug("Entity in requested state")
-            self.speak_dialog('homeassistant.device.already', data={
-                "dev_name": ha_entity['dev_name'], 'action': action})
-        elif action == "toggle":
+        if action == "toggle":
             self.ha.execute_service("homeassistant", "toggle",
                                     ha_data)
             if(ha_entity['state'] == 'off'):
