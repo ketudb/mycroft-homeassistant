@@ -80,7 +80,6 @@ class HomeAssistantSkill(FallbackSkill):
         self.load_vocab_files(join(dirname(__file__), 'vocab', self.lang))
         self.load_regex_files(join(dirname(__file__), 'regex', self.lang))
         self.__build_switch_intent()
-        #self.__build_light_adjust_intent()
         self.__build_automation_intent()
         self.__build_sensor_intent()
         self.__build_tracker_intent()
@@ -107,14 +106,6 @@ class HomeAssistantSkill(FallbackSkill):
         intent = IntentBuilder("switchIntent").require(
             "SwitchActionKeyword").require("Action").require("Entity").build()
         self.register_intent(intent, self.handle_switch_intent)
-
-    #def __build_light_adjust_intent(self):
-    #    intent = IntentBuilder("LightAdjBrightnessIntent") \
-    #        .optionally("LightsKeyword") \
-    #        .one_of("IncreaseVerb", "DecreaseVerb", "LightBrightenVerb",
-    #                "LightDimVerb") \
-    #        .require("Entity").optionally("BrightnessValue").build()
-    #    self.register_intent(intent, self.handle_light_adjust_intent)
 
     def __build_automation_intent(self):
         intent = IntentBuilder("AutomationIntent").require(
@@ -230,7 +221,6 @@ class HomeAssistantSkill(FallbackSkill):
             self.speak_dialog('homeassistant.error.sorry')
             return
 
-    # @intent_file_handler('set.light.brightness.intent')
     def handle_light_set_intent(self, message):
         entity = message.data["entity"]
         try:
@@ -263,83 +253,6 @@ class HomeAssistantSkill(FallbackSkill):
                           data=dg_data)
 
         return
-
-    def handle_light_adjust_intent(self, message):
-        entity = message.data["Entity"]
-        try:
-            brightness_req = float(message.data["BrightnessValue"])
-            if brightness_req > 100 or brightness_req < 0:
-                self.speak_dialog('homeassistant.brightness.badreq')
-        except KeyError:
-            brightness_req = 10.0
-        brightness_value = int(brightness_req / 100 * 255)
-        # brightness_percentage = int(brightness_req) # debating use
-        LOGGER.debug("Entity: %s" % entity)
-        LOGGER.debug("Brightness Value: %s" % brightness_value)
-
-        ha_entity = self._find_entity(entity, ['group', 'light'])
-        if not ha_entity:
-            return
-        ha_data = {'entity_id': ha_entity['id']}
-        # IDEA: set context for 'turn it off again' or similar
-        # self.set_context('Entity', ha_entity['dev_name'])
-
-        # if self.language == 'de':
-        #    if action == 'runter' or action == 'dunkler':
-        #        action = 'dim'
-        #    elif action == 'heller' or action == 'hell':
-        #        action = 'brighten'
-        if "DecreaseVerb" in message.data or \
-                "LightDimVerb" in message.data:
-            if ha_entity['state'] == "off":
-                self.speak_dialog('homeassistant.brightness.cantdim.off',
-                                  data=ha_entity)
-            else:
-                light_attrs = self.ha.find_entity_attr(ha_entity['id'])
-                if light_attrs['unit_measure'] is None:
-                    print(ha_entity)
-                    self.speak_dialog(
-                        'homeassistant.brightness.cantdim.dimmable',
-                        data=ha_entity)
-                else:
-                    ha_data['brightness'] = light_attrs['unit_measure']
-                    if ha_data['brightness'] < brightness_value:
-                        ha_data['brightness'] = 10
-                    else:
-                        ha_data['brightness'] -= brightness_value
-                    self.ha.execute_service("homeassistant",
-                                            "turn_on",
-                                            ha_data)
-                    ha_data['dev_name'] = ha_entity['dev_name']
-                    self.speak_dialog('homeassistant.brightness.decreased',
-                                      data=ha_data)
-        elif "IncreaseVerb" in message.data or \
-                "LightBrightenVerb" in message.data:
-            if ha_entity['state'] == "off":
-                self.speak_dialog(
-                    'homeassistant.brightness.cantdim.off',
-                    data=ha_entity)
-            else:
-                light_attrs = self.ha.find_entity_attr(ha_entity['id'])
-                if light_attrs['unit_measure'] is None:
-                    self.speak_dialog(
-                        'homeassistant.brightness.cantdim.dimmable',
-                        data=ha_entity)
-                else:
-                    ha_data['brightness'] = light_attrs['unit_measure']
-                    if ha_data['brightness'] > brightness_value:
-                        ha_data['brightness'] = 255
-                    else:
-                        ha_data['brightness'] += brightness_value
-                    self.ha.execute_service("homeassistant",
-                                            "turn_on",
-                                            ha_data)
-                    ha_data['dev_name'] = ha_entity['dev_name']
-                    self.speak_dialog('homeassistant.brightness.increased',
-                                      data=ha_data)
-        else:
-            self.speak_dialog('homeassistant.error.sorry')
-            return
 
     def handle_automation_intent(self, message):
         entity = message.data["Entity"]
