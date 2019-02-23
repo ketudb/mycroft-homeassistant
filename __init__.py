@@ -108,10 +108,13 @@ class HomeAssistantSkill(FallbackSkill):
         # Otherwise new settings will not be regarded
         self._force_setup()
 
-    def __build_switch_intent(self):
-        intent = IntentBuilder("switchIntent").require(
-            "SwitchActionKeyword").require("Action").require("Entity").build()
-        self.register_intent(intent, self.handle_switch_intent)
+    #def __build_light_adjust_intent(self):
+    #    intent = IntentBuilder("LightAdjBrightnessIntent") \
+    #        .optionally("LightsKeyword") \
+    #        .one_of("IncreaseVerb", "DecreaseVerb", "LightBrightenVerb",
+    #                "LightDimVerb") \
+    #        .require("Entity").optionally("BrightnessValue").build()
+    #    self.register_intent(intent, self.handle_light_adjust_intent)
 
     def __build_automation_intent(self):
         intent = IntentBuilder("AutomationIntent").require(
