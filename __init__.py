@@ -84,7 +84,6 @@ class HomeAssistantSkill(FallbackSkill):
         self.__build_sensor_intent()
         self.__build_tracker_intent()
 
-        self.register_entity_file('light_action.entity')
         self.register_intent_file(
             'switch.device.intent',
             self.handle_switch_intent
@@ -107,14 +106,6 @@ class HomeAssistantSkill(FallbackSkill):
         # Force a setting refresh after the websettings changed
         # Otherwise new settings will not be regarded
         self._force_setup()
-
-    #def __build_light_adjust_intent(self):
-    #    intent = IntentBuilder("LightAdjBrightnessIntent") \
-    #        .optionally("LightsKeyword") \
-    #        .one_of("IncreaseVerb", "DecreaseVerb", "LightBrightenVerb",
-    #                "LightDimVerb") \
-    #        .require("Entity").optionally("BrightnessValue").build()
-    #    self.register_intent(intent, self.handle_light_adjust_intent)
 
     def __build_automation_intent(self):
         intent = IntentBuilder("AutomationIntent").require(
