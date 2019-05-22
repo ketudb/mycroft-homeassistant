@@ -1,4 +1,3 @@
-Sorry, I can't find the Home Assistant entity "{{dev_name}}".
-Entity "{{dev_name}}" could not be found.
-Sorry, entity "{{dev_name}}" wasn't found.
-Excuse me, I wasn't able to find "{{dev_name}}".
+{{dev_name}} is not a known device.
+I don't know of {{dev_name}}.
+I couldn't find {{dev_name}}.

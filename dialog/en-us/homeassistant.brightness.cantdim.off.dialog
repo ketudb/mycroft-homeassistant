@@ -1,3 +1,2 @@
-Can not dim {{dev_name}}. It is off.
-Can not dim {{dev_name}}. Please turn it on before.
-{{dev_name}} can not be dimmed. Only devices that are turned on can be.
+Unable to comply, {{dev_name}} is not on.
+{{dev_name}} is not on.
