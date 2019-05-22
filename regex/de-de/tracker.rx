@@ -1,2 +1,0 @@
-(wo ist|(was ist (der|die )?)?(Standort|Lage|Position) von) (?P<Entity>.*)
-(?P<Entity>.*) (Standort|Lage|Position)
