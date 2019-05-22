@@ -1,3 +1,0 @@
-turn {{light_action}} {{entity}}
-{{entity}} {{light_action}}
-switch {{light_action}} {{entity}}
