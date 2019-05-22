@@ -93,10 +93,6 @@ class HomeAssistantSkill(FallbackSkill):
             self.handle_switchOff_intent
         )
         self.register_intent_file(
-            'switchToggle.device.intent',
-            self.handle_switchToggle_intent
-        )
-        self.register_intent_file(
             'set.climate.intent',
             self.handle_set_thermostat_intent
         )
@@ -184,11 +180,6 @@ class HomeAssistantSkill(FallbackSkill):
         LOGGER.debug("Starting switchOff intent")
         entity = message.data["entity"]
         handle_switch_intent(entity, "off")
-
-    def handle_switchToggle_intent(self, message):
-        LOGGER.debug("Starting switchToggle intent")
-        entity = message.data["entity"]
-        handle_switch_intent(entity, "toggle")
 
     def handle_switch_intent(entity, action):
         LOGGER.debug("Starting Switch Intent")
