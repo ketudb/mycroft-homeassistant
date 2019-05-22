@@ -79,10 +79,8 @@ class HomeAssistantSkill(FallbackSkill):
         self.language = self.config_core.get('lang')
         self.load_vocab_files(join(dirname(__file__), 'vocab', self.lang))
         self.load_regex_files(join(dirname(__file__), 'regex', self.lang))
-        #self.__build_light_adjust_intent()
         self.__build_automation_intent()
         self.__build_sensor_intent()
-        self.__build_tracker_intent()
 
         self.register_intent_file(
             'switchOn.device.intent',
@@ -99,6 +97,10 @@ class HomeAssistantSkill(FallbackSkill):
         self.register_intent_file(
             'set.light.brightness.intent',
             self.handle_light_set_intent
+        )
+        self.register_intent_file(
+            'track.device.intent',
+            self.handle_tracker_intent
         )
         # Needs higher priority than general fallback skills
         self.register_fallback(self.handle_fallback, 2)
@@ -121,12 +123,6 @@ class HomeAssistantSkill(FallbackSkill):
             "SensorStatusKeyword").require("Entity").build()
         # TODO - Sensors - Locks, Temperature, etc
         self.register_intent(intent, self.handle_sensor_intent)
-
-    def __build_tracker_intent(self):
-        intent = IntentBuilder("TrackerIntent").require(
-            "DeviceTrackerKeyword").require("Entity").build()
-        # TODO - Identity location, proximity
-        self.register_intent(intent, self.handle_tracker_intent)
 
     # Try to find an entity on the HAServer
     # Creates dialogs for errors and speaks them
