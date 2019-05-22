@@ -85,8 +85,16 @@ class HomeAssistantSkill(FallbackSkill):
         self.__build_tracker_intent()
 
         self.register_intent_file(
-            'switch.device.intent',
-            self.handle_switch_intent
+            'switchOn.device.intent',
+            self.handle_switchOn_intent
+        )
+        self.register_intent_file(
+            'switchOff.device.intent',
+            self.handle_switchOff_intent
+        )
+        self.register_intent_file(
+            'switchToggle.device.intent',
+            self.handle_switchToggle_intent
         )
         self.register_intent_file(
             'set.climate.intent',
@@ -167,10 +175,23 @@ class HomeAssistantSkill(FallbackSkill):
                     'url': exception.request.url})
         return False
 
-    def handle_switch_intent(self, message):
-        LOGGER.debug("Starting Switch Intent")
+    def handle_switchOn_intent(self, message):
+        LOGGER.debug("Starting switchOn intent")
         entity = message.data["entity"]
-        action = message.data["light_ction"]
+        handle_switch_intent(entity, "on")
+
+    def handle_switchOff_intent(self, message):
+        LOGGER.debug("Starting switchOff intent")
+        entity = message.data["entity"]
+        handle_switch_intent(entity, "off")
+
+    def handle_switchToggle_intent(self, message):
+        LOGGER.debug("Starting switchToggle intent")
+        entity = message.data["entity"]
+        handle_switch_intent(entity, "toggle")
+
+    def handle_switch_intent(entity, action):
+        LOGGER.debug("Starting Switch Intent")
         LOGGER.debug("Entity: %s" % entity)
         LOGGER.debug("Action: %s" % action)
 
