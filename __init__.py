@@ -359,7 +359,6 @@ class HomeAssistantSkill(FallbackSkill):
                           data={'dev_name': dev_name,
                                 'location': dev_location})
 
-    @intent_file_handler('set.climate.intent')
     def handle_set_thermostat_intent(self, message):
         entity = message.data["entity"]
         LOGGER.debug("Entity: %s" % entity)
