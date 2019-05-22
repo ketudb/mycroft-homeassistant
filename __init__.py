@@ -171,17 +171,7 @@ class HomeAssistantSkill(FallbackSkill):
                     'url': exception.request.url})
         return False
 
-    def handle_switchOn_intent(self, message):
-        LOGGER.debug("Starting switchOn intent")
-        entity = message.data["entity"]
-        handle_switch_intent(entity, "on")
-
-    def handle_switchOff_intent(self, message):
-        LOGGER.debug("Starting switchOff intent")
-        entity = message.data["entity"]
-        handle_switch_intent(entity, "off")
-
-    def handle_switch_intent(entity, action):
+    def handle_switch_intent(self, entity, action):
         LOGGER.debug("Starting Switch Intent")
         LOGGER.debug("Entity: %s" % entity)
         LOGGER.debug("Action: %s" % action)
@@ -223,6 +213,16 @@ class HomeAssistantSkill(FallbackSkill):
         else:
             self.speak_dialog('homeassistant.error.sorry')
             return
+
+    def handle_switchOn_intent(self, message):
+        LOGGER.debug("Starting switchOn intent")
+        entity = message.data["entity"]
+        self.handle_switch_intent(entity, "on")
+
+    def handle_switchOff_intent(self, message):
+        LOGGER.debug("Starting switchOff intent")
+        entity = message.data["entity"]
+        self.handle_switch_intent(entity, "off")
 
     def handle_light_set_intent(self, message):
         entity = message.data["entity"]
