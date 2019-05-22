@@ -1,2 +1,0 @@
-(waar is|(wat is de)?locatie van) (?P<Entity>.*)
-(?P<Entity>.*) locatie

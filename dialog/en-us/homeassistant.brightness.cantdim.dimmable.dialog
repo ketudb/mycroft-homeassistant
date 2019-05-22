@@ -1,1 +1,3 @@
-Can not dim {{dev_name}}. It is not dimmable.
+Unable to comply. {{dev_name}} is not dimmable.
+{{dev_name}} is not dimmable.
+{{dev_name}} cannot be dimmed.

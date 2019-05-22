@@ -1,3 +1,3 @@
-Dimmed {{dev_name}} to {{brightness_percentage}} percent.
-Set {{dev_name}} to {{brightness_percentage}} percent.
-{{dev_name}} is now set to {{brightness_percentage}} percent.
+{{dev_name}} set to {{brightness_percentage}} percent.
+{{dev_name}}, {{brightness_percentage}} percent.
+Done!

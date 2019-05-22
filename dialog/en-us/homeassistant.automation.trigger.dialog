@@ -1,5 +1,3 @@
-triggered automation {{dev_name}}.
-triggered {{dev_name}}.
-{{dev_name}} was triggered.
-{{dev_name}} was activated.
-activated {{dev_name}}.
+running {{dev_name}}.
+automation {{dev_name}} triggered.
+fired {{dev_name}}.

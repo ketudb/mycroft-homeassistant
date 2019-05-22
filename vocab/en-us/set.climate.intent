@@ -1,3 +1,17 @@
 set the {{entity}} to {{temp}} degrees
+set {{entity}} to {{temp}} degrees
 set the {{entity}} temperature to {{temp}} degrees
+set {{entity}} temperature to {{temp}} degrees
 change the {{entity}} temperature to {temp}} degrees
+change {{entity}} temperature to {{temp}} degrees
+{{entity}} temperature to {{temp}} degrees
+set the {{entity}} thermostat to {{temp}} degrees
+set {{entity}} thermostat to {{temp}} degrees
+change the {{entity}} thermostat to {temp}} degrees
+change {{entity}} thermostat to {{temp}} degrees
+{{entity}} thermostat to {{temp}} degrees
+set the {{entity}} heater to {{temp}} degrees
+set {{entity}} heater to {{temp}} degrees
+change the {{entity}} heater to {temp}} degrees
+change {{entity}} heater to {{temp}} degrees
+{{entity}} heater to {{temp}} degrees

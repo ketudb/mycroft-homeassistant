@@ -1,1 +1,3 @@
-Successfully set {{dev_name}} to {{value}} {{unit}}.
+{{dev_name}} has been adjusted to {{value}} {{unit}}.
+{{dev_name}} set to {{value}} {{unit}}.
+{{dev_name}}, {{value}} {{unit}}.

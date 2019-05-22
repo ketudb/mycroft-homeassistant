@@ -77,13 +77,15 @@ class HomeAssistantSkill(FallbackSkill):
 
     def initialize(self):
         self.language = self.config_core.get('lang')
-        self.load_vocab_files(join(dirname(__file__), 'vocab', self.lang))
-        self.load_regex_files(join(dirname(__file__), 'regex', self.lang))
-        self.__build_switch_intent()
-        #self.__build_light_adjust_intent()
-        self.__build_automation_intent()
-        self.__build_sensor_intent()
-        self.__build_tracker_intent()
+
+        self.register_intent_file(
+            'switchOn.device.intent',
+            self.handle_switchOn_intent
+        )
+        self.register_intent_file(
+            'switchOff.device.intent',
+            self.handle_switchOff_intent
+        )
         self.register_intent_file(
             'set.climate.intent',
             self.handle_set_thermostat_intent
@@ -91,6 +93,18 @@ class HomeAssistantSkill(FallbackSkill):
         self.register_intent_file(
             'set.light.brightness.intent',
             self.handle_light_set_intent
+        )
+        self.register_intent_file(
+            'track.device.intent',
+            self.handle_tracker_intent
+        )
+        self.register_intent_file(
+            'trigger.automation.intent',
+            self.handle_automation_intent
+        )
+        self.register_intent_file(
+            'status.sensor.intent',
+            self.handle_sensor_intent
         )
         # Needs higher priority than general fallback skills
         self.register_fallback(self.handle_fallback, 2)
@@ -102,36 +116,6 @@ class HomeAssistantSkill(FallbackSkill):
         # Force a setting refresh after the websettings changed
         # Otherwise new settings will not be regarded
         self._force_setup()
-
-    def __build_switch_intent(self):
-        intent = IntentBuilder("switchIntent").require(
-            "SwitchActionKeyword").require("Action").require("Entity").build()
-        self.register_intent(intent, self.handle_switch_intent)
-
-    #def __build_light_adjust_intent(self):
-    #    intent = IntentBuilder("LightAdjBrightnessIntent") \
-    #        .optionally("LightsKeyword") \
-    #        .one_of("IncreaseVerb", "DecreaseVerb", "LightBrightenVerb",
-    #                "LightDimVerb") \
-    #        .require("Entity").optionally("BrightnessValue").build()
-    #    self.register_intent(intent, self.handle_light_adjust_intent)
-
-    def __build_automation_intent(self):
-        intent = IntentBuilder("AutomationIntent").require(
-            "AutomationActionKeyword").require("Entity").build()
-        self.register_intent(intent, self.handle_automation_intent)
-
-    def __build_sensor_intent(self):
-        intent = IntentBuilder("SensorIntent").require(
-            "SensorStatusKeyword").require("Entity").build()
-        # TODO - Sensors - Locks, Temperature, etc
-        self.register_intent(intent, self.handle_sensor_intent)
-
-    def __build_tracker_intent(self):
-        intent = IntentBuilder("TrackerIntent").require(
-            "DeviceTrackerKeyword").require("Entity").build()
-        # TODO - Identity location, proximity
-        self.register_intent(intent, self.handle_tracker_intent)
 
     # Try to find an entity on the HAServer
     # Creates dialogs for errors and speaks them
@@ -176,10 +160,8 @@ class HomeAssistantSkill(FallbackSkill):
                     'url': exception.request.url})
         return False
 
-    def handle_switch_intent(self, message):
+    def handle_switch_intent(self, entity, action):
         LOGGER.debug("Starting Switch Intent")
-        entity = message.data["Entity"]
-        action = message.data["Action"]
         LOGGER.debug("Entity: %s" % entity)
         LOGGER.debug("Action: %s" % action)
 
@@ -203,16 +185,7 @@ class HomeAssistantSkill(FallbackSkill):
         # IDEA: set context for 'turn it off' again or similar
         # self.set_context('Entity', ha_entity['dev_name'])
 
-        if self.language == 'de':
-            if action == 'ein':
-                action = 'on'
-            elif action == 'aus':
-                action = 'off'
-        if ha_entity['state'] == action:
-            LOGGER.debug("Entity in requested state")
-            self.speak_dialog('homeassistant.device.already', data={
-                "dev_name": ha_entity['dev_name'], 'action': action})
-        elif action == "toggle":
+        if action == "toggle":
             self.ha.execute_service("homeassistant", "toggle",
                                     ha_data)
             if(ha_entity['state'] == 'off'):
@@ -230,7 +203,16 @@ class HomeAssistantSkill(FallbackSkill):
             self.speak_dialog('homeassistant.error.sorry')
             return
 
-    # @intent_file_handler('set.light.brightness.intent')
+    def handle_switchOn_intent(self, message):
+        LOGGER.debug("Starting switchOn intent")
+        entity = message.data["entity"]
+        self.handle_switch_intent(entity, "on")
+
+    def handle_switchOff_intent(self, message):
+        LOGGER.debug("Starting switchOff intent")
+        entity = message.data["entity"]
+        self.handle_switch_intent(entity, "off")
+
     def handle_light_set_intent(self, message):
         entity = message.data["entity"]
         try:
@@ -264,85 +246,8 @@ class HomeAssistantSkill(FallbackSkill):
 
         return
 
-    def handle_light_adjust_intent(self, message):
-        entity = message.data["Entity"]
-        try:
-            brightness_req = float(message.data["BrightnessValue"])
-            if brightness_req > 100 or brightness_req < 0:
-                self.speak_dialog('homeassistant.brightness.badreq')
-        except KeyError:
-            brightness_req = 10.0
-        brightness_value = int(brightness_req / 100 * 255)
-        # brightness_percentage = int(brightness_req) # debating use
-        LOGGER.debug("Entity: %s" % entity)
-        LOGGER.debug("Brightness Value: %s" % brightness_value)
-
-        ha_entity = self._find_entity(entity, ['group', 'light'])
-        if not ha_entity:
-            return
-        ha_data = {'entity_id': ha_entity['id']}
-        # IDEA: set context for 'turn it off again' or similar
-        # self.set_context('Entity', ha_entity['dev_name'])
-
-        # if self.language == 'de':
-        #    if action == 'runter' or action == 'dunkler':
-        #        action = 'dim'
-        #    elif action == 'heller' or action == 'hell':
-        #        action = 'brighten'
-        if "DecreaseVerb" in message.data or \
-                "LightDimVerb" in message.data:
-            if ha_entity['state'] == "off":
-                self.speak_dialog('homeassistant.brightness.cantdim.off',
-                                  data=ha_entity)
-            else:
-                light_attrs = self.ha.find_entity_attr(ha_entity['id'])
-                if light_attrs['unit_measure'] is None:
-                    print(ha_entity)
-                    self.speak_dialog(
-                        'homeassistant.brightness.cantdim.dimmable',
-                        data=ha_entity)
-                else:
-                    ha_data['brightness'] = light_attrs['unit_measure']
-                    if ha_data['brightness'] < brightness_value:
-                        ha_data['brightness'] = 10
-                    else:
-                        ha_data['brightness'] -= brightness_value
-                    self.ha.execute_service("homeassistant",
-                                            "turn_on",
-                                            ha_data)
-                    ha_data['dev_name'] = ha_entity['dev_name']
-                    self.speak_dialog('homeassistant.brightness.decreased',
-                                      data=ha_data)
-        elif "IncreaseVerb" in message.data or \
-                "LightBrightenVerb" in message.data:
-            if ha_entity['state'] == "off":
-                self.speak_dialog(
-                    'homeassistant.brightness.cantdim.off',
-                    data=ha_entity)
-            else:
-                light_attrs = self.ha.find_entity_attr(ha_entity['id'])
-                if light_attrs['unit_measure'] is None:
-                    self.speak_dialog(
-                        'homeassistant.brightness.cantdim.dimmable',
-                        data=ha_entity)
-                else:
-                    ha_data['brightness'] = light_attrs['unit_measure']
-                    if ha_data['brightness'] > brightness_value:
-                        ha_data['brightness'] = 255
-                    else:
-                        ha_data['brightness'] += brightness_value
-                    self.ha.execute_service("homeassistant",
-                                            "turn_on",
-                                            ha_data)
-                    ha_data['dev_name'] = ha_entity['dev_name']
-                    self.speak_dialog('homeassistant.brightness.increased',
-                                      data=ha_data)
-        else:
-            self.speak_dialog('homeassistant.error.sorry')
-            return
-
     def handle_automation_intent(self, message):
-        entity = message.data["Entity"]
+        entity = message.data["entity"]
         LOGGER.debug("Entity: %s" % entity)
         ha_entity = self._find_entity(
             entity,
@@ -374,7 +279,7 @@ class HomeAssistantSkill(FallbackSkill):
                                     data=ha_data)
 
     def handle_sensor_intent(self, message):
-        entity = message.data["Entity"]
+        entity = message.data["entity"]
         LOGGER.debug("Entity: %s" % entity)
 
         ha_entity = self._find_entity(entity, ['sensor', 'switch'])
@@ -430,7 +335,7 @@ class HomeAssistantSkill(FallbackSkill):
     # - overlapping command for directions modules
     # - (e.g. "How far is x from y?")
     def handle_tracker_intent(self, message):
-        entity = message.data["Entity"]
+        entity = message.data["entity"]
         LOGGER.debug("Entity: %s" % entity)
 
         ha_entity = self._find_entity(entity, ['device_tracker'])
@@ -447,7 +352,6 @@ class HomeAssistantSkill(FallbackSkill):
                           data={'dev_name': dev_name,
                                 'location': dev_location})
 
-    @intent_file_handler('set.climate.intent')
     def handle_set_thermostat_intent(self, message):
         entity = message.data["entity"]
         LOGGER.debug("Entity: %s" % entity)
