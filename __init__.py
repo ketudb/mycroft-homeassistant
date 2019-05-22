@@ -79,7 +79,6 @@ class HomeAssistantSkill(FallbackSkill):
         self.language = self.config_core.get('lang')
         self.load_vocab_files(join(dirname(__file__), 'vocab', self.lang))
         self.load_regex_files(join(dirname(__file__), 'regex', self.lang))
-        self.__build_automation_intent()
         self.__build_sensor_intent()
 
         self.register_intent_file(
@@ -102,6 +101,10 @@ class HomeAssistantSkill(FallbackSkill):
             'track.device.intent',
             self.handle_tracker_intent
         )
+        self.register_intent_file(
+            'trigger.automation.intent',
+            self.handle_automation_intent
+        )
         # Needs higher priority than general fallback skills
         self.register_fallback(self.handle_fallback, 2)
         # Check and then monitor for credential changes
@@ -112,11 +115,6 @@ class HomeAssistantSkill(FallbackSkill):
         # Force a setting refresh after the websettings changed
         # Otherwise new settings will not be regarded
         self._force_setup()
-
-    def __build_automation_intent(self):
-        intent = IntentBuilder("AutomationIntent").require(
-            "AutomationActionKeyword").require("Entity").build()
-        self.register_intent(intent, self.handle_automation_intent)
 
     def __build_sensor_intent(self):
         intent = IntentBuilder("SensorIntent").require(
@@ -254,7 +252,7 @@ class HomeAssistantSkill(FallbackSkill):
         return
 
     def handle_automation_intent(self, message):
-        entity = message.data["Entity"]
+        entity = message.data["entity"]
         LOGGER.debug("Entity: %s" % entity)
         ha_entity = self._find_entity(
             entity,

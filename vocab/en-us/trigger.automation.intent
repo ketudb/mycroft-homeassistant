@@ -1,0 +1,4 @@
+activate {{entity}}
+fire {{entity}}
+trigger {{entity}}
+run automation {{entity}}
