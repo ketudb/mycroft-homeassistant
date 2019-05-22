@@ -342,7 +342,7 @@ class HomeAssistantSkill(FallbackSkill):
     # - overlapping command for directions modules
     # - (e.g. "How far is x from y?")
     def handle_tracker_intent(self, message):
-        entity = message.data["Entity"]
+        entity = message.data["entity"]
         LOGGER.debug("Entity: %s" % entity)
 
         ha_entity = self._find_entity(entity, ['device_tracker'])
